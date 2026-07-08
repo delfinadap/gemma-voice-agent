@@ -107,6 +107,10 @@
   #levelmeter { display: none; flex: 1; min-width: 0; height: 42px; }
   form.recording #levelmeter { display: block; }
   form.recording #text { display: none; }
+  #send .icon-cancel { display: none; }
+  form.recording #send { background: transparent; border: 1px solid var(--border); color: var(--text-dim); }
+  form.recording #send .icon-send { display: none; }
+  form.recording #send .icon-cancel { display: block; }
 </style>
 </head>
 <body>
@@ -136,10 +140,14 @@
       <rect x="6" y="6" width="12" height="12" rx="2"/>
     </svg>
   </button>
-  <button type="submit" title="Send" aria-label="Send">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+  <button type="submit" id="send" title="Send" aria-label="Send">
+    <svg class="icon-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
       <line x1="12" y1="19" x2="12" y2="5"/>
       <polyline points="5 12 12 5 19 12"/>
+    </svg>
+    <svg class="icon-cancel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+      <line x1="6" y1="6" x2="18" y2="18"/>
+      <line x1="18" y1="6" x2="6" y2="18"/>
     </svg>
   </button>
 </form>
@@ -324,11 +332,15 @@ async function attachVoiceBar(bubble, b64) {
   audio.addEventListener("pause", () => { btn.innerHTML = PLAY_SVG; });
   btn.addEventListener("click", () => { audio.paused ? audio.play() : audio.pause(); });
 
-  audio.play().catch(() => {});
 }
 
 form.addEventListener("submit", (e) => {
   e.preventDefault();
+  if (recorder && recorder.state === "recording") {
+    discardTake = true;
+    recorder.stop();
+    return;
+  }
   const q = textEl.value.trim();
   if (!q) return;
   textEl.value = "";
@@ -339,11 +351,12 @@ form.addEventListener("submit", (e) => {
   chatRequest(fd);
 });
 
-let recorder = null, chunks = [];
+let recorder = null, chunks = [], discardTake = false;
 micBtn.addEventListener("click", async () => {
   if (recorder && recorder.state === "recording") { recorder.stop(); return; }
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
   chunks = [];
+  discardTake = false;
 
   // The input bar becomes a live level meter while recording
   form.classList.add("recording");
@@ -385,6 +398,7 @@ micBtn.addEventListener("click", async () => {
     actx.close();
     micBtn.classList.remove("recording");
     form.classList.remove("recording");
+    if (discardTake) return;
     const blob = new Blob(chunks, { type: recorder.mimeType || "audio/webm" });
 
     // Two independent requests: transcription fills the user bubble,

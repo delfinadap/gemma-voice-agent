@@ -114,6 +114,7 @@ def reply_stream(
         run_config = None
 
     final = None
+    streamed = ""  # deltas since the last tool call; fallback if no flagged final event arrives
     events = _runner.run(
         user_id=user_id,
         session_id=session_id,
@@ -123,6 +124,7 @@ def reply_stream(
     for event in events:
         try:
             if event.get_function_calls():
+                streamed = ""
                 yield {"type": "status", "status": "Searching papers"}
         except Exception:  # noqa: BLE001
             pass
@@ -131,10 +133,11 @@ def reply_stream(
             if not chunk:
                 continue
             if getattr(event, "partial", False):
+                streamed += chunk
                 yield {"type": "delta", "text": chunk}
             elif event.is_final_response():
                 final = chunk
-    yield {"type": "done", "text": final or "Sorry, I could not come up with an answer."}
+    yield {"type": "done", "text": final or streamed or "Sorry, I could not come up with an answer."}
 
 
 def reply(
