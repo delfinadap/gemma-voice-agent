@@ -54,6 +54,4 @@ still waited at 50+ hours; [same wall here](https://discuss.google.dev/t/300-fre
 
 ## Escalation attempts
 
-I also tried escalating to a human at Google (the sales contact form and chat, and billing
-support in the console), but every path ended at an automated assistant or a form loop, and I
-couldn't figure out how to reach an actual person.
+I also tried escalating this to sales and support, but none of the options I tried quite worked.
