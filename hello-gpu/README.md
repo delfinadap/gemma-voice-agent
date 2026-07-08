@@ -13,5 +13,5 @@ gcloud run deploy hello-gpu \
   --allow-unauthenticated
 ```
 
-Then `curl` the service URL — you should see the L4 in the `nvidia-smi` table. Scale-to-zero is
+Then `curl` the service URL and you should see the L4 in the `nvidia-smi` table. Scale-to-zero is
 the default, so an idle service costs nothing.
