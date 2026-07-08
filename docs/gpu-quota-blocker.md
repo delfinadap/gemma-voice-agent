@@ -51,3 +51,9 @@ Free-trial accounts [can't use GPUs or request quota increases](https://docs.clo
 Upgrading to paid is supposed to lift that immediately, but there is a trust/propagation lag
 (roughly 24 to 48 hours per support replies; [one report](https://discuss.google.dev/t/cloud-run-gpu-quota-not-activated-after-50-hours-on-paid-account/323795)
 still waited at 50+ hours; [same wall here](https://discuss.google.dev/t/300-free-trial-is-useless-without-gpu-quota-my-trial-period-is-wasting-away/290091)).
+
+## Escalation attempts
+
+I also tried escalating to a human at Google (the sales contact form and chat, and billing
+support in the console), but every path ended at an automated assistant or a form loop, and I
+couldn't figure out how to reach an actual person.
