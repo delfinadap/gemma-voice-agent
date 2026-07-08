@@ -51,11 +51,3 @@ Free-trial accounts [can't use GPUs or request quota increases](https://docs.clo
 Upgrading to paid is supposed to lift that immediately, but there is a trust/propagation lag
 (roughly 24 to 48 hours per support replies; [one report](https://discuss.google.dev/t/cloud-run-gpu-quota-not-activated-after-50-hours-on-paid-account/323795)
 still waited at 50+ hours; [same wall here](https://discuss.google.dev/t/300-free-trial-is-useless-without-gpu-quota-my-trial-period-is-wasting-away/290091)).
-
-## Plan
-
-1. CPU-only revision of `hello-gpu` is live (validates the pipeline, builds usage history).
-2. Retry the GPU deploy about every 24h, in more than one L4 region (the auto-grant fires at
-   deploy time).
-3. Still blocked after ~72h: billing support citing the documented auto-grant, and consider a
-   Compute Engine GPU quota request as a fallback.
