@@ -101,7 +101,7 @@ quotaIncreaseEligibility:
 ```
 
 **Updating a service that already has the resources** bypasses the memory check entirely.
-Deploy CPU-only at GPU size first, then add only the GPU:
+Deploy CPU-only with the GPU minimums (4 CPU, 16 GiB) first, then add only the GPU:
 
 ```sh
 gcloud run deploy hello-gpu-mem --image <image> --region us-central1 \
