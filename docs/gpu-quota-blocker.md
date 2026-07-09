@@ -55,3 +55,32 @@ still waited at 50+ hours; [same wall here](https://discuss.google.dev/t/300-fre
 ## Escalation attempts
 
 I also tried escalating this to sales and support, but none of the options I tried quite worked.
+
+## Update (2026-07-08): GPU gate lifted in us-central1, memory quota is the new blocker
+
+About a day after the paid upgrade, the us-central1 deploy stopped failing on GPU quota.
+It now fails on memory instead:
+
+```
+Quota violated:
+MemAllocPerProjectRegion requested: 51539607552 allowed: 42949672960
+```
+
+48 GiB requested is 3 x the 16 GiB GPU minimum: the first-deploy auto-grant comes as a fixed
+bundle of 3 GPUs, and validation checks memory headroom for all 3 even with `--max-instances 1`.
+The 40 GiB per-region memory cap can't hold that, and increase requests are denied
+(`NOT_ENOUGH_USAGE_HISTORY`). Explicit GPU quota requests (1 or 3) are still granted 0.
+
+Swept all five L4 regions (the deploy error confirms these are the only ones), both
+redundancy modes:
+
+| Region | No zonal redundancy | Zonal redundancy |
+|---|---|---|
+| us-central1 | memory quota (past the GPU gate) | GPU quota 0 |
+| us-east4 | GPU quota 0 | GPU quota 0 |
+| europe-west1 | GPU quota 0 | GPU quota 0 |
+| europe-west4 | GPU quota 0 | GPU quota 0 |
+| asia-southeast1 | GPU quota 0 | GPU quota 0 |
+
+us-central1 is the only region past the GPU gate, likely because all the account's usage
+history is there. Plan: keep retrying us-central1 as the account ages.
