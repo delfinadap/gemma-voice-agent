@@ -59,7 +59,7 @@ I also tried escalating this to sales and support, but none of the options I tri
 ## Update (2026-07-08): GPU gate lifted in us-central1, memory quota is the new blocker
 
 About a day after the paid upgrade, the us-central1 deploy stopped failing on GPU quota.
-Same command as the original repro:
+Re-running the same deploy command from the repro above:
 
 ```sh
 cd hello-gpu
