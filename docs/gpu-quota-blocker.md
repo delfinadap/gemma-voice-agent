@@ -109,4 +109,4 @@ Quota exceeded for total allowable count of GPUs per project per region.
 **Bottom line:** no path grants any GPU quota. Per the
 [docs](https://docs.cloud.google.com/run/docs/configuring/services/gpu), the first GPU
 deployment in a region automatically grants 3 GPUs of quota, no request needed. That never
-happened here, even after a GPU revision was created (the documented trigger).
+happened here, even after a GPU revision was created.
