@@ -91,13 +91,30 @@ invitation-only), both redundancy modes:
 | europe-west4 | GPU quota 0 | GPU quota 0 |
 | asia-southeast1 | GPU quota 0 | GPU quota 0 |
 
-Also requested quota increases directly (same API as step 2 above): the us-central1 memory cap
-from 40 GiB to 64 GiB, and the L4 quota to 3. Both denied:
+Also requested quota increases directly. The us-central1 memory cap from 40 GiB to 64 GiB:
+
+```sh
+gcloud beta quotas preferences create --service=run.googleapis.com \
+  --quota-id=MemAllocPerProjectRegion \
+  --preferred-value=68719476736 --dimensions=region=us-central1 \
+  --project=<project id> --email=<account email>
+```
 
 ```
 "We cannot grant the preferred quota '68719476736' for limit 'MemAllocPerProjectRegion'
 in service 'run.googleapis.com' at this moment. '42949672960' was granted."
+```
 
+And the L4 quota to 3 (an update, since step 2 above already created the preference):
+
+```sh
+gcloud beta quotas preferences update <preference id> --service=run.googleapis.com \
+  --quota-id=NvidiaL4GpuAllocNoZonalRedundancyPerProjectRegion \
+  --preferred-value=3 --dimensions=region=us-central1 \
+  --project=<project id> --email=<account email>
+```
+
+```
 "We cannot grant the preferred quota '3' for limit
 'NvidiaL4GpuAllocNoZonalRedundancyPerProjectRegion' in service 'run.googleapis.com'
 at this moment. '0' was granted."
