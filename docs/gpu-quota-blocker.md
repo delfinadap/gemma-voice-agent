@@ -88,6 +88,3 @@ redundancy modes:
 | europe-west1 | GPU quota 0 | GPU quota 0 |
 | europe-west4 | GPU quota 0 | GPU quota 0 |
 | asia-southeast1 | GPU quota 0 | GPU quota 0 |
-
-us-central1 is the only region past the GPU gate, likely because all the account's usage
-history is there. Plan: keep retrying us-central1 as the account ages.
