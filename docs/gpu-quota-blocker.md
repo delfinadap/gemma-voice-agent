@@ -76,7 +76,9 @@ MemAllocPerProjectRegion requested: 51539607552 allowed: 42949672960
 ```
 
 That's 48 GiB requested vs 40 GiB allowed: Cloud Run requires at least 16 GiB of RAM on any
-instance with a GPU attached, and the first-deploy auto-grant comes as a fixed bundle of 3 GPUs.
+instance with a GPU attached, and the
+[first-deploy auto-grant](https://docs.cloud.google.com/run/docs/configuring/services/gpu)
+comes as a fixed bundle of 3 GPUs.
 
 Swept all five L4 regions (the deploy error confirms these are the only ones), both
 redundancy modes:
