@@ -56,19 +56,15 @@ still waited at 50+ hours; [same wall here](https://discuss.google.dev/t/300-fre
 
 I also tried escalating this to sales and support, but none of the options I tried quite worked.
 
-## Update (2026-07-08): GPU gate lifted in us-central1, memory quota is the new blocker
+## Update (2026-07-08/09): every path tried, one root cause
 
-About a day after the paid upgrade, the us-central1 deploy stopped failing on GPU quota.
-Re-running the same deploy command from the repro above:
+The error changes with how you deploy, but the cause doesn't. Verified in all five publicly
+available L4 regions (the docs list a sixth, asia-south1, but it's invitation-only); behavior
+is identical everywhere:
 
-```sh
-cd hello-gpu
-gcloud run deploy hello-gpu --source . --region us-central1 \
-  --gpu 1 --gpu-type nvidia-l4 --no-gpu-zonal-redundancy \
-  --cpu 4 --memory 16Gi --max-instances 1 --allow-unauthenticated
-```
+**Creating a new GPU service** fails on GPU quota, as in the repro above.
 
-It now fails on memory instead:
+**Updating an existing (CPU-only) service to GPU** gets past that check and fails on memory:
 
 ```
 Quota violated:
@@ -80,18 +76,7 @@ instance with a GPU attached, and the
 [first-deploy auto-grant](https://docs.cloud.google.com/run/docs/configuring/services/gpu)
 comes as a fixed bundle of 3 GPUs.
 
-Swept all five publicly available L4 regions (the docs list a sixth, asia-south1, but it's
-invitation-only), both redundancy modes:
-
-| Region | No zonal redundancy | Zonal redundancy |
-|---|---|---|
-| us-central1 | memory quota (past the GPU gate) | GPU quota 0 |
-| us-east4 | GPU quota 0 | GPU quota 0 |
-| europe-west1 | GPU quota 0 | GPU quota 0 |
-| europe-west4 | GPU quota 0 | GPU quota 0 |
-| asia-southeast1 | GPU quota 0 | GPU quota 0 |
-
-Also requested a quota increase directly: the us-central1 memory cap from 40 GiB to 50 GiB.
+Requesting the memory cap raised from 40 GiB to 50 GiB:
 
 ```sh
 gcloud beta quotas preferences create --service=run.googleapis.com \
@@ -105,8 +90,6 @@ gcloud beta quotas preferences create --service=run.googleapis.com \
 in service 'run.googleapis.com' at this moment. '42949672960' was granted."
 ```
 
-The quotas API reports the memory quota as ineligible for increase:
-
 ```sh
 gcloud beta quotas info describe MemAllocPerProjectRegion \
   --service=run.googleapis.com --project=<project id> \
@@ -118,23 +101,8 @@ quotaIncreaseEligibility:
   ineligibilityReason: NOT_ENOUGH_USAGE_HISTORY
 ```
 
-## Update (2026-07-09): not about regions or time. No GPU quota is granted by any path
-
-Re-ran everything a day later. Two corrections to the update above, and one new finding.
-
-**Create vs update, not region.** Which error you get depends on whether the service already
-exists, and it's the same in all five regions:
-
-- Creating a new GPU service fails on GPU quota, including in us-central1.
-- Updating an existing (CPU-only) service to GPU passes the GPU check and fails on the
-  48 vs 40 GiB memory validation, in every region tested.
-
-So "us-central1 stopped failing on GPU quota" above was not the account aging: the 07-07
-attempts created the service, the 07-08 one updated an existing one. Different validation
-paths, same refusal.
-
-**The memory check can be bypassed.** Give an existing service the resources first, then add
-only the GPU:
+**Updating a service that already has the resources** bypasses the memory check entirely.
+Deploy CPU-only at GPU size first, then add only the GPU:
 
 ```sh
 gcloud run deploy hello-gpu-mem --image <image> --region us-central1 \
@@ -151,7 +119,8 @@ The second deploy passes validation and creates the revision, then fails at prov
 Quota exceeded for total allowable count of GPUs per project per region.
 ```
 
-**Root cause.** Every error so far is the same refusal surfacing at different stages: this
-account has zero L4 quota and nothing grants any. The documented first-deploy auto-grant did
-not fire even after a GPU revision was created (the documented trigger). The memory cap is
-still 40 GiB, still `NOT_ENOUGH_USAGE_HISTORY`.
+**Root cause:** the account has zero L4 quota and no path grants any. The documented
+first-deploy auto-grant did not fire even after a GPU revision was created (the documented
+trigger), and nothing changed between days one and three, so the propagation-lag diagnosis
+above remains unconfirmed. The memory and GPU errors are the same refusal surfacing at
+different stages.
