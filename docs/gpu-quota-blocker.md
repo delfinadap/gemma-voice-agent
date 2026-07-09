@@ -56,7 +56,7 @@ still waited at 50+ hours; [same wall here](https://discuss.google.dev/t/300-fre
 
 I also tried escalating this to sales and support, but none of the options I tried quite worked.
 
-## Update (2026-07-08/09): every path tried, one root cause
+## Update (2026-07-08/09): every path tried, same wall
 
 The error changes with how you deploy, but the cause doesn't. Verified in all five publicly
 available L4 regions; behavior is identical everywhere:
