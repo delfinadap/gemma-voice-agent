@@ -58,8 +58,8 @@ I also tried escalating this to sales and support, but none of the options I tri
 
 ## Update (2026-07-08/09): every path tried, same wall
 
-The error changes with how you deploy, but the cause doesn't. Verified in all five publicly
-available L4 regions; behavior is identical everywhere:
+The error changes with how you deploy. Verified in all five publicly available L4 regions;
+behavior is identical everywhere:
 
 **Creating a new GPU service** fails on GPU quota, as in the repro above.
 
